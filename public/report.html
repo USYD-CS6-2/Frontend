@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CMU-Q Analysis Report</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: rgba(255, 255, 255, 0.84);
+      --border: rgba(148, 163, 184, 0.22);
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #8b0000;
+      --accent-soft: rgba(139, 0, 0, 0.10);
+      --blue-soft: rgba(37, 99, 235, 0.10);
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 22px;
+      --mono-bg: #0f172a;
+      --mono-text: #e5eefb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(139, 0, 0, 0.06), transparent 30%),
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 24%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 36px 20px 56px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(139, 0, 0, 0.08), rgba(37, 99, 235, 0.05));
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 28px 28px 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+      flex-wrap: wrap;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 40px;
+      line-height: 1.05;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      background: white;
+      border: 1px solid var(--border);
+      color: var(--text);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      backdrop-filter: blur(10px);
+    }
+
+    .section-title {
+      margin: 0 0 16px;
+      font-size: 22px;
+      line-height: 1.2;
+    }
+
+    .meta-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .meta-item {
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 12px;
+      align-items: start;
+      font-size: 15px;
+    }
+
+    .meta-label {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .meta-value {
+      color: var(--text);
+      word-break: break-word;
+      font-weight: 500;
+    }
+
+    .platform-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid rgba(139, 0, 0, 0.14);
+    }
+
+    .platform-pill .dot {
+      background: var(--accent);
+    }
+
+    .summary-card {
+      margin-top: 18px;
+    }
+
+    .summary-box {
+      white-space: pre-wrap;
+      line-height: 1.85;
+      font-size: 17px;
+      color: #334155;
+      min-height: 88px;
+    }
+
+    .summary-empty {
+      color: var(--muted);
+    }
+
+    .info-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .info-chip {
+      background: var(--blue-soft);
+      color: #1d4ed8;
+      border: 1px solid rgba(37, 99, 235, 0.12);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .raw-card {
+      margin-top: 18px;
+    }
+
+    .raw-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .raw-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    pre {
+      margin: 0;
+      background: var(--mono-bg);
+      color: var(--mono-text);
+      padding: 18px;
+      border-radius: 18px;
+      overflow: auto;
+      font-size: 13px;
+      line-height: 1.65;
+      max-height: 480px;
+      border: 1px solid rgba(148, 163, 184, 0.10);
+    }
+
+    a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .title {
+        font-size: 32px;
+      }
+
+      .meta-item {
+        grid-template-columns: 96px 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        padding: 18px 12px 34px;
+      }
+
+      .hero,
+      .card {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .title {
+        font-size: 28px;
+      }
+
+      .meta-item {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <h1 class="title">CMU-Q Analysis Report</h1>
+          <div class="subtitle">Integrated frontend-backend result page</div>
+        </div>
+        <div class="badge-row">
+          <div class="badge"><span class="dot"></span><span id="heroPlatform">Unknown</span></div>
+          <div class="badge">Comments: <span id="heroCount">-</span></div>
+          <div class="badge">Language: <span id="heroLanguage">-</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div class="card">
+        <h2 class="section-title">Post Information</h2>
+        <div class="meta-list">
+          <div class="meta-item">
+            <div class="meta-label">Platform</div>
+            <div class="meta-value">
+              <span class="platform-pill"><span class="dot"></span><span id="platform">-</span></span>
+            </div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Post URL</div>
+            <div class="meta-value"><a id="postUrl" href="#" target="_blank" rel="noreferrer">-</a></div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Comments</div>
+            <div class="meta-value" id="commentsCount">-</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Generated At</div>
+            <div class="meta-value" id="generatedAt">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Backend Meta</h2>
+        <div class="meta-list">
+          <div class="meta-item">
+            <div class="meta-label">Source</div>
+            <div class="meta-value" id="source">-</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Language</div>
+            <div class="meta-value" id="language">-</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Request ID</div>
+            <div class="meta-value" id="requestId">-</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Strategy</div>
+            <div class="meta-value" id="strategy">-</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card summary-card">
+      <h2 class="section-title">Summary</h2>
+      <div id="summary" class="summary-box summary-empty">No summary available.</div>
+      <div class="info-row">
+        <div class="info-chip" id="fallbackChip">Fallback: -</div>
+        <div class="info-chip" id="inputChip">Input Count: -</div>
+        <div class="info-chip" id="outputChip">Output Count: -</div>
+      </div>
+      <div class="footer-note">Tip: this page reads the latest analysis result from extension storage.</div>
+    </section>
+
+    <section class="card raw-card">
+      <div class="raw-toolbar">
+        <h2 class="section-title" style="margin:0;">Raw Backend Response</h2>
+        <div class="raw-actions">
+          <button id="copyBtn" type="button">Copy JSON</button>
+          <button id="toggleBtn" type="button">Collapse</button>
+        </div>
+      </div>
+      <pre id="rawResponse">Loading...</pre>
+    </section>
+  </div>
+
+  <script src="report.js"></script>
+</body>
+</html>
