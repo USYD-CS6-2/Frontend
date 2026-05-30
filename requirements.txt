@@ -1,0 +1,20 @@
+# Frontend environment requirements for the CMU-Q / USYD CS6-2
+# LLM-based Online Comments Summarizer browser extension
+
+Node.js >= 18.0.0
+npm >= 9.0.0
+
+# Recommended browsers for loading the unpacked extension
+Microsoft Edge (latest stable version recommended)
+Google Chrome (latest stable version recommended)
+
+# Project stack
+TypeScript 5
+Vite 8
+Chrome Extension Manifest V3
+
+# Notes
+# 1. Install Node.js first, then run: npm install
+# 2. Build the extension with: npm run build
+# 3. Load the generated dist/ folder as an unpacked browser extension
+# 4. Ensure the backend API endpoint configured in the frontend code is reachable
